@@ -20,3 +20,4 @@ class TileState:
 class TileType:
     BRICK = 1
     GRASS = 2
+    
