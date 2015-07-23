@@ -107,6 +107,8 @@ class App:
     def on_update(self):
         self._tank.move()
         
+        print self._tile_manager.is_collide(self._tank.get_rect())
+        
         for blue_tank in self._blue_tanks:
             blue_tank.move()
                 
