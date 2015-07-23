@@ -10,7 +10,7 @@ class Base(object):
     _image_surf = None
     _display_surf = None
     _name = None
-    _direction = None 
+    _direction = None
     
     _is_left_move_allowed = False
     _is_right_move_allowed = False
@@ -85,7 +85,7 @@ class Base(object):
     
     def get_direction(self):
         return self._direction
-    
+
     def set_up(self):
         self.set_direction(enum.Sprite.UP)
         self.set_is_move_allowed(True, enum.Sprite.UP)
