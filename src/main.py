@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pygame
 from pygame.locals import *
@@ -7,6 +8,8 @@ from entities.tank import *
 from entities.missile import *
 from entities.enum import *
 from system.keyqueue import *
+from tile.tile import *
+from tile.tile_manager import TileManager
 
 class App:
     def __init__(self):
@@ -43,8 +46,10 @@ class App:
         self._blue_tanks = []
         for i in range(3):
             self._blue_tanks.append(Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(i*144), current_position_y=0))
-        
+
         self._running = True
+        
+        self._tile_manager = TileManager(self._image_surf, self._display_surf, self.weight, self.height)
     
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -111,7 +116,7 @@ class App:
                     self._tank.get_missiles().remove(missile)
                 else: 
                     missile.move()
-     
+
     def on_render(self):
         self._display_surf.fill(self.background_color);
         
@@ -125,9 +130,11 @@ class App:
         for blue_tank in self._blue_tanks:
             blue_tank.render()
         
+        self._tile_manager.render()
         pygame.display.flip()
     
     def on_cleanup(self):
+        pygame.display.quit()
         pygame.quit()
     
     def on_execute(self):
@@ -144,6 +151,7 @@ class App:
             pygame.time.Clock().tick(30)
 
         self.on_cleanup()
+        sys.exit(0)
 
 if __name__ == "__main__":
     theApp = App()
