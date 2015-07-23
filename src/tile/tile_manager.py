@@ -1,9 +1,16 @@
+'''This is the module contains TileManager class
+'''
 from tile import Brick
 from entities.enum import TileState
 from entities.enum import TileType
 
 class TileManager(object):
+    '''TileManager class provides methods for create tile map.
+    '''
     def __init__(self, image_surf, display_surf, weight, height):
+        '''Constructor initialize the tile map 
+        '''
+
         self._image_surf = image_surf
         self._display_surf = display_surf
         self._weight = weight
@@ -24,6 +31,8 @@ class TileManager(object):
             self._tile_map.append(tile_map_row)
 
     def render(self):
+        '''Render the tile image
+        '''
         for row in self._tile_map:
             for col in row:
                 if col is not None:
