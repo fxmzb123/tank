@@ -16,7 +16,8 @@ class TileManager(object):
             tile_map_row = []
             for col_index, col in enumerate(row):
                 if col == TileType.BRICK:
-                    tile_map_row.append(Brick(TileState.INIT, self._image_surf, self._display_surf, self._weight, self._height, current_position_x=col_index*32, current_position_y=(row_index+1)*32))
+                    tile = Brick(TileState.INIT, self._image_surf, self._display_surf, self._weight, self._height, current_position_x=col_index*32, current_position_y=(row_index+1)*32)
+                    tile_map_row.append(tile)
                 else:
                     tile_map_row.append(None)
 
@@ -27,3 +28,9 @@ class TileManager(object):
             for col in row:
                 if col is not None:
                     col.render()
+
+    def is_collide(self, rect):
+        '''To test whether the provided rect has collision with any of the tiles
+        '''
+        flattened = [val.get_rect() for sublist in self._tile_map for val in sublist if val is not None ]
+        return rect.collidelistall(flattened)

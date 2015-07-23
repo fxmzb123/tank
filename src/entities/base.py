@@ -1,3 +1,5 @@
+import pygame
+
 from entities import enum
 from system import utils
 
@@ -6,6 +8,7 @@ class Base(object):
     _image_x = 0
     _image_y = 0
     _image_size = 32
+    _offset = 2
     
     _image_surf = None
     _display_surf = None
@@ -25,6 +28,8 @@ class Base(object):
     _screen_weight = 0
     _screen_height = 0
     
+    _rect = None
+
     _image_X_Y = {}
             
     def get_id(self):
@@ -46,6 +51,12 @@ class Base(object):
         self._current_position_x = current_position_x
         self._current_position_y = current_position_y
     
+    def get_rect(self):
+        return pygame.Rect((self._current_position_x, self._current_position_y), (self._image_size-self._offset, self._image_size-self._offset))
+    
+    def is_collide(self, rect):
+        return self.get_rect().colliderect(rect)
+
     def set_current_position(self, x, y):
         self.set_current_position_x(x)
         self.set_current_position_y(y)
