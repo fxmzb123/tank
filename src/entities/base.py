@@ -29,7 +29,7 @@ class Base(object):
     _screen_height = 0
     
     _rect = None
-    
+
     _image_X_Y = {}
             
     def get_id(self):
