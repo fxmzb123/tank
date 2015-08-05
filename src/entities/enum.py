@@ -1,4 +1,4 @@
-class  Sprite:
+class Sprite:
     UP = 1
     RIGHT = 2
     DOWN = 3
