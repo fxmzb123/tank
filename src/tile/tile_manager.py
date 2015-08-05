@@ -1,5 +1,7 @@
 '''This is the module contains TileManager class
 '''
+from operator import itemgetter 
+
 from tile import Brick
 from entities.enum import TileState
 from entities.enum import TileType
@@ -16,7 +18,7 @@ class TileManager(object):
         self._weight = weight
         self._height = height
 
-        self._tile_map_array = [[1,1,0,1,1,1,1,0,1,1], [1,1,0,1,1,1,1,0,1,1]]
+        self._tile_map_array = [[0,0,0,0,0,0,0,0,1,1], [1,1,0,0,0,1,1,0,1,1]]
         self._tile_map = []
 
         for row_index, row in enumerate(self._tile_map_array):
@@ -42,4 +44,16 @@ class TileManager(object):
         '''To test whether the provided rect has collision with any of the tiles
         '''
         flattened = [val.get_rect() for sublist in self._tile_map for val in sublist if val is not None ]
-        return rect.collidelistall(flattened)
+        collision_rects_index = rect.collidelistall(flattened)
+        collision_rects = []
+
+        if len(collision_rects_index) > 0:
+            value = itemgetter(*collision_rects_index)(flattened)
+
+            if isinstance(value, tuple):
+                collision_rects = list(value)
+            else:
+                collision_rects.append(value)
+            return collision_rects
+        else:
+            return []

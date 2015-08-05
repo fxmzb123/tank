@@ -19,7 +19,8 @@ class App:
         self.background_color = (0,0,0)
         self._image_surf = None
         self._image_name = "tankbrigade.bmp"
-                
+        self._collision_direction = []
+        
     def on_init(self):
         
         pygame.init()
@@ -105,13 +106,22 @@ class App:
         self._tank.add_missile(missile)
                 
     def on_update(self):
-        self._tank.move()
         
-        print self._tile_manager.is_collide(self._tank.get_rect())
-        
+        next_rect = self._tank.get_rect_of_next_move()
+        allow_move = True
+
+        if next_rect:
+            collide_rects = self._tile_manager.is_collide(next_rect)
+
+            if len(collide_rects) > 0:
+                allow_move = False
+
+        if allow_move:
+            self._tank.move()
+
         for blue_tank in self._blue_tanks:
             blue_tank.move()
-                
+
         for missile in self._tank.get_missiles():
             if missile:
                 if missile.is_touched_border():

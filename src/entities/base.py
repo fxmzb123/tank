@@ -2,13 +2,14 @@ import pygame
 
 from entities import enum
 from system import utils
+from pygame import Rect
 
 class Base(object):
     _id = None
     _image_x = 0
     _image_y = 0
     _image_size = 32
-    _offset = 2
+    _offset = 1
     
     _image_surf = None
     _display_surf = None
@@ -56,6 +57,55 @@ class Base(object):
     
     def is_collide(self, rect):
         return self.get_rect().colliderect(rect)
+
+    def get_rect_of_next_move(self):
+        x = self.get_current_position_x()
+        y = self.get_current_position_y()
+        
+        moving = False
+                
+        if self._is_right_move_allowed:
+            if (self._direction == enum.Sprite.RIGHT):
+                if self._current_position_x < (self._screen_weight - self.get_image_size()):
+                    x = self._current_position_x + self._move_increment
+            moving = True
+
+        if self._is_left_move_allowed:    
+            if (self._direction == enum.Sprite.LEFT):
+                if self._current_position_x > 0:
+                    x = self._current_position_x - self._move_increment
+            moving = True
+        
+        if self._is_up_move_allowed:    
+            if (self._direction == enum.Sprite.UP):
+                if self._current_position_y > 0:
+                    y = self._current_position_y - self._move_increment
+
+            moving = True
+
+        if self._is_down_move_allowed: 
+            if (self._direction == enum.Sprite.DOWN):
+                if self._current_position_y < (self._screen_height - self.get_image_size()):
+                    y = self._current_position_y + self._move_increment
+            moving = True
+
+        if moving:
+            return Rect(x, y, self._image_size, self._image_size)
+        else:
+            return None
+
+    def get_collision_side(self, rect):
+        if self.get_direction() == enum.Sprite.UP or self.get_direction() == enum.Sprite.DOWN:
+            if self.get_rect().centery < rect.centery:
+                return enum.Sprite.DOWN
+            elif self.get_rect().centery > rect.centery:
+                return enum.Sprite.UP
+
+        if self.get_direction() == enum.Sprite.LEFT or self.get_direction() == enum.Sprite.RIGHT:
+            if self.get_rect().centerx > rect.centerx:
+                return enum.Sprite.LEFT
+            if self.get_rect().centerx < rect.centerx:
+                return enum.Sprite.RIGHT
 
     def set_current_position(self, x, y):
         self.set_current_position_x(x)
