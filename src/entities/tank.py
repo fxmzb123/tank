@@ -9,7 +9,7 @@ class Tank(base.Base):
         self._missiles.append(missile)
     
     def get_missiles(self):
-        return self._missiles    
+        return self._missiles   
     
     def get_missile_position(self):
         missile_position = {}
