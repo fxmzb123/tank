@@ -67,11 +67,11 @@ class App:
             if event.key == pygame.K_LEFT:
                 self._tank.set_left()
                 KeyQueue.pursh_key(Key.LEFT)
-                  
+
             if event.key == pygame.K_RIGHT:
                 self._tank.set_right()
                 KeyQueue.pursh_key(Key.RIGHT)
-                
+
             if event.key == pygame.K_SPACE:
                 self.fire_missile()
                 KeyQueue.pursh_key(Key.FIRE)
@@ -120,6 +120,7 @@ class App:
             self._tank.move()
 
         for blue_tank in self._blue_tanks:
+            blue_tank.set_move_direction(blue_tank.get_random_direction())
             blue_tank.move()
 
         for missile in self._tank.get_missiles():

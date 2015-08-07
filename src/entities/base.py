@@ -1,3 +1,4 @@
+from random import randint
 import pygame
 
 from entities import enum
@@ -30,6 +31,9 @@ class Base(object):
     _screen_height = 0
     
     _rect = None
+    
+    _move_direction_counter = 0
+    _random_direction = enum.Sprite.DOWN
 
     _image_X_Y = {}
             
@@ -51,6 +55,8 @@ class Base(object):
         self._move_increment = move_increment
         self._current_position_x = current_position_x
         self._current_position_y = current_position_y
+
+        self._random_direction = randint(1, 4)
     
     def get_rect(self):
         return pygame.Rect((self._current_position_x, self._current_position_y), (self._image_size-self._offset, self._image_size-self._offset))
@@ -159,7 +165,17 @@ class Base(object):
     def set_right(self):
         self.set_direction(enum.Sprite.RIGHT)
         self.set_is_move_allowed(True, enum.Sprite.RIGHT)
-    
+
+    def set_move_direction(self, direction):
+        if direction == enum.Sprite.UP:
+            self.set_up()
+        if direction == enum.Sprite.DOWN:
+            self.set_down()
+        if direction == enum.Sprite.LEFT:
+            self.set_left()
+        if direction == enum.Sprite.RIGHT:
+            self.set_right()
+
     def set_is_move_allowed(self, allowed, direction):
         #self._is_move_allowed = allowed
         if direction == enum.Sprite.DOWN:
@@ -171,6 +187,15 @@ class Base(object):
         if direction == enum.Sprite.UP:
             self._is_up_move_allowed = allowed
     
+    def get_random_direction(self):
+        self._move_direction_counter += 1
+        
+        if self._move_direction_counter == 100:
+            self._move_direction_counter = 0
+            self._random_direction = randint(1, 4)   
+        
+        return self._random_direction
+
     def move(self):
         if self._is_right_move_allowed:
             if (self._direction == enum.Sprite.RIGHT):
