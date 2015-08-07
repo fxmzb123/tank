@@ -40,20 +40,10 @@ class TileManager(object):
                 if col is not None:
                     col.render()
 
-    def is_collide(self, rect):
-        '''To test whether the provided rect has collision with any of the tiles
+    def get_all_rects(self):
+        '''Get rects for all tiles
         '''
-        flattened = [val.get_rect() for sublist in self._tile_map for val in sublist if val is not None ]
-        collision_rects_index = rect.collidelistall(flattened)
-        collision_rects = []
+        flattened = [val.get_rect() for sublist in self._tile_map for val in \
+                     sublist if val is not None ]
 
-        if len(collision_rects_index) > 0:
-            value = itemgetter(*collision_rects_index)(flattened)
-
-            if isinstance(value, tuple):
-                collision_rects = list(value)
-            else:
-                collision_rects.append(value)
-            return collision_rects
-        else:
-            return []
+        return flattened

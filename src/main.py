@@ -45,11 +45,13 @@ class App:
         self._tank = Tank(Sprite.LEFT, self._image_surf, self._display_surf, self.weight, self.height, green_tank_image_X_Y, current_position_x=0, current_position_y=352)        
         
         self._blue_tanks = []
+        
         for i in range(3):
-            self._blue_tanks.append(Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(i*144), current_position_y=0))
+            blue_tank = Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(i*144), current_position_y=0)
+            self._blue_tanks.append(blue_tank)
 
         self._running = True
-        
+
         self._tile_manager = TileManager(self._image_surf, self._display_surf, self.weight, self.height)
     
     def on_event(self, event):
@@ -106,22 +108,28 @@ class App:
         self._tank.add_missile(missile)
                 
     def on_update(self):
-        
-        next_rect = self._tank.get_rect_of_next_move()
-        allow_move = True
+        tile_rects = self._tile_manager.get_all_rects()
+        blue_tank_rects = []
+        for blue_tank in self._blue_tanks:
+            blue_tank_rects.append(blue_tank.get_rect())
 
-        if next_rect:
-            collide_rects = self._tile_manager.is_collide(next_rect)
+        for index, blue_tank in enumerate(self._blue_tanks):
+            other_blue_tank_rects = blue_tank_rects[:index] + blue_tank_rects[(index + 1):]
 
-            if len(collide_rects) > 0:
-                allow_move = False
+            other_blue_tank_rects.extend(tile_rects)
+            other_blue_tank_rects.append(self._tank.get_rect())
+
+            blue_tank.set_move_direction(blue_tank.get_random_direction())
+
+            allow_move = blue_tank.is_allow_move(other_blue_tank_rects)
+
+            if allow_move:
+                blue_tank.move()
+
+        allow_move = self._tank.is_allow_move(tile_rects)
 
         if allow_move:
             self._tank.move()
-
-        for blue_tank in self._blue_tanks:
-            blue_tank.set_move_direction(blue_tank.get_random_direction())
-            blue_tank.move()
 
         for missile in self._tank.get_missiles():
             if missile:
