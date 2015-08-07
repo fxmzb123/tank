@@ -110,6 +110,7 @@ class App:
     def on_update(self):
         tile_rects = self._tile_manager.get_all_rects()
         blue_tank_rects = []
+
         for blue_tank in self._blue_tanks:
             blue_tank_rects.append(blue_tank.get_rect())
 
@@ -126,7 +127,11 @@ class App:
             if allow_move:
                 blue_tank.move()
 
-        allow_move = self._tank.is_allow_move(tile_rects)
+        other_object_rects = []
+
+        other_object_rects.extend(blue_tank_rects)
+        other_object_rects.extend(tile_rects)
+        allow_move = self._tank.is_allow_move(other_object_rects)
 
         if allow_move:
             self._tank.move()
