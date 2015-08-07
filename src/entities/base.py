@@ -196,6 +196,18 @@ class Base(object):
         
         return self._random_direction
 
+    def is_allow_move(self, rects):
+        next_rect = self.get_rect_of_next_move()
+        allow_move = True
+
+        if next_rect:
+            collide_rects = utils.Utils.is_collide(next_rect, rects)
+
+            if len(collide_rects) > 0:
+                allow_move = False
+
+        return allow_move
+
     def move(self):
         if self._is_right_move_allowed:
             if (self._direction == enum.Sprite.RIGHT):
