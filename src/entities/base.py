@@ -40,7 +40,7 @@ class Base(object):
     def get_id(self):
         return self._id
     
-    def __init__(self, direction, image_surf, display_surf, screen_width, screen_height, image_X_Y, move_increment=1, current_position_x = 0, current_position_y = 0):
+    def __init__(self, direction, image_surf, display_surf, screen_width, screen_height, image_X_Y, move_increment=1, current_position_x = 0, current_position_y = 0, offset = 1):
         
         self._id = utils.Utils.get_uuid()
     
@@ -57,7 +57,9 @@ class Base(object):
         self._current_position_y = current_position_y
 
         self._random_direction = randint(1, 4)
-    
+
+        self._offset = offset
+
     def get_rect(self):
         return pygame.Rect((self._current_position_x, self._current_position_y), (self._image_size-self._offset, self._image_size-self._offset))
     

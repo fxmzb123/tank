@@ -7,9 +7,10 @@ from pygame.locals import *
 from entities.tank import *
 from entities.missile import *
 from entities.enum import *
+from entities.fire import *
 from system.keyqueue import *
-from tile.tile import *
 from tile.tile_manager import TileManager
+from system import utils
 
 class App:
     def __init__(self):
@@ -41,11 +42,11 @@ class App:
         blue_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":363}
         blue_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":726, "y":132}
         blue_tank_image_X_Y[enum.Sprite.LEFT] = {"x":693, "y":132}
-        
+
         self._tank = Tank(Sprite.LEFT, self._image_surf, self._display_surf, self.weight, self.height, green_tank_image_X_Y, current_position_x=0, current_position_y=352)        
-        
+
         self._blue_tanks = []
-        
+
         for i in range(3):
             blue_tank = Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(i*144), current_position_y=0)
             self._blue_tanks.append(blue_tank)
@@ -53,7 +54,9 @@ class App:
         self._running = True
 
         self._tile_manager = TileManager(self._image_surf, self._display_surf, self.weight, self.height)
-    
+
+        self._fire_list = []
+
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
@@ -103,7 +106,7 @@ class App:
     def fire_missile(self):
         missile_position = self._tank.get_missile_position()
                 
-        missile = Missile(self._tank.get_direction(), self._image_surf, self._display_surf, self.weight, self.height, None, 5, current_position_x=missile_position['x'], current_position_y=missile_position['y'])
+        missile = Missile(self._tank.get_direction(), self._image_surf, self._display_surf, self.weight, self.height, None, 5, current_position_x=missile_position['x'], current_position_y=missile_position['y'], offset=14)
         missile.set_is_move_allowed(True, self._tank.get_direction())
         self._tank.add_missile(missile)
                 
@@ -141,7 +144,17 @@ class App:
                 if missile.is_touched_border():
                     self._tank.get_missiles().remove(missile)
                 else: 
-                    missile.move()
+                    # Do missile collision detection
+                    collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), blue_tank_rects)
+
+                    if len(collide_rect_indexs) > 0:
+                        index = collide_rect_indexs[0]
+                        fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._blue_tanks[index].get_current_position_x(), current_position_y=self._blue_tanks[index].get_current_position_y())
+                        self._fire_list.append(fire)                       
+                        del self._blue_tanks[index]
+                        self._tank.get_missiles().remove(missile)                        
+                    else:
+                        missile.move()
 
     def on_render(self):
         self._display_surf.fill(self.background_color);
@@ -157,6 +170,10 @@ class App:
             blue_tank.render()
         
         self._tile_manager.render()
+        
+        for fire in self._fire_list:
+            fire.render()
+            
         pygame.display.flip()
     
     def on_cleanup(self):
