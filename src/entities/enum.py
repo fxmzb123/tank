@@ -20,4 +20,8 @@ class TileState:
 class TileType:
     BRICK = 1
     GRASS = 2
-    
+
+class FireState:
+    FIRST = 1
+    SECOND = 2
+    THIRD = 3

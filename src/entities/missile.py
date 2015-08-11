@@ -1,3 +1,5 @@
+import pygame
+
 from entities import base
 from entities import enum
 
@@ -39,4 +41,6 @@ class Missile(base.Base):
         if self._direction == enum.Sprite.LEFT:
             self._image_x = 165
             self._image_y = 33
-        
+    
+    def get_rect(self):
+        return pygame.Rect((self._current_position_x+self._offset, self._current_position_y+self._offset), (self._image_size-self._offset*2, self._image_size-self._offset*2))
