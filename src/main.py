@@ -109,13 +109,31 @@ class App:
         missile = Missile(self._tank.get_direction(), self._image_surf, self._display_surf, self.weight, self.height, None, 5, current_position_x=missile_position['x'], current_position_y=missile_position['y'], offset=14)
         missile.set_is_move_allowed(True, self._tank.get_direction())
         self._tank.add_missile(missile)
-                
+
     def on_update(self):
         tile_rects = self._tile_manager.get_all_rects()
         blue_tank_rects = []
 
         for blue_tank in self._blue_tanks:
             blue_tank_rects.append(blue_tank.get_rect())
+            blue_tank.fire_missile_randomly()
+
+            for missile in blue_tank.get_missiles():
+                if missile.is_touched_border():
+                    blue_tank.get_missiles().remove(missile)
+                else:
+                    # Do missile collision detection
+                    collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
+
+                    if len(collide_rect_indexs) > 0:
+                        index = collide_rect_indexs[0]
+                        fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._tank.get_current_position_x(), current_position_y=self._tank.get_current_position_y())
+                        self._fire_list.append(fire)                       
+                        #del self._blue_tanks[index]
+                        print "green tank hit"
+                        blue_tank.get_missiles().remove(missile)                        
+                    else:
+                        missile.move()
 
         for index, blue_tank in enumerate(self._blue_tanks):
             other_blue_tank_rects = blue_tank_rects[:index] + blue_tank_rects[(index + 1):]
@@ -161,14 +179,19 @@ class App:
         
         #self._display_surf.blit(self._image_surf,(0,0), (561,132,32,32))
         self._tank.render()
-        
+
         for missile in self._tank.get_missiles():
             if missile:
                 missile.render()
-        
+
+        for blue_tank in self._blue_tanks:
+            for missile in blue_tank.get_missiles():
+                if missile:
+                    missile.render()
+
         for blue_tank in self._blue_tanks:
             blue_tank.render()
-        
+
         self._tile_manager.render()
         
         for fire in self._fire_list:

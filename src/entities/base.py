@@ -60,6 +60,8 @@ class Base(object):
 
         self._offset = offset
 
+        self._missiles = []
+
     def get_rect(self):
         return pygame.Rect((self._current_position_x, self._current_position_y), (self._image_size-self._offset, self._image_size-self._offset))
     
