@@ -1,9 +1,24 @@
+from random import randint
+
 from entities import base
-from entities import missile
+from entities.missile import Missile
 from entities import enum
 
 class Tank(base.Base):
-    _missiles = []
+    
+
+    def fire_missile_randomly(self):
+        random_integer = randint(0, 50)
+
+        if random_integer == 50:
+            self.fire_missile()
+
+    def fire_missile(self):
+        missile_position = self.get_missile_position()
+
+        missile = Missile(self.get_direction(), self._image_surf, self._display_surf, self._screen_weight, self._screen_height, None, 5, current_position_x=missile_position['x'], current_position_y=missile_position['y'], offset=14)
+        missile.set_is_move_allowed(True, self.get_direction())
+        self.add_missile(missile)
     
     def add_missile(self, missile):
         self._missiles.append(missile)
@@ -30,7 +45,6 @@ class Tank(base.Base):
             missile_position['x'] = self.get_current_position_x() + self.get_image_size()
             missile_position['y'] =  self.get_current_position_y()
     
-        
         return missile_position
         
     def set_direction(self, direction):

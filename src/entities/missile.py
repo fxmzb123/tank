@@ -20,20 +20,20 @@ class Missile(base.Base):
         if self._direction == enum.Sprite.LEFT:
             if self.get_current_position_x() <= 0:
                 return True
-        
+
         return False
-          
+
     def set_direction(self, direction):
         super(Missile, self).set_direction(direction)
-        
+
         if self._direction == enum.Sprite.UP:
             self._image_x = 132
             self._image_y = 33
-        
+
         if self._direction == enum.Sprite.DOWN:
             self._image_x = 231
             self._image_y = 33
-        
+
         if self._direction == enum.Sprite.RIGHT:
             self._image_x = 198
             self._image_y = 33
