@@ -30,20 +30,17 @@ class App:
         self._display_surf.fill(self.background_color);
 
         self._image_surf = pygame.image.load( os.path.join(os.path.dirname(__file__), "images", self._image_name) ).convert()
-        
-        green_tank_image_X_Y={}
-        green_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":33}
-        green_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":66}
-        green_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":528, "y":99}
-        green_tank_image_X_Y[enum.Sprite.LEFT] = {"x":561, "y":132}
-        
+  
         blue_tank_image_X_Y={}
         blue_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":330}
         blue_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":363}
         blue_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":726, "y":132}
         blue_tank_image_X_Y[enum.Sprite.LEFT] = {"x":693, "y":132}
 
-        self._tank = Tank(Sprite.LEFT, self._image_surf, self._display_surf, self.weight, self.height, green_tank_image_X_Y, current_position_x=0, current_position_y=352)        
+        self._total_number_of_tanks = 3
+        self._delay_index = 0
+
+        self._tank = self.get_new_green_tank()
 
         self._blue_tanks = []
 
@@ -61,48 +58,50 @@ class App:
         if event.type == pygame.QUIT:
             self._running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                self._tank.set_up()
-                KeyQueue.pursh_key(Key.UP)
-                    
-            if event.key == pygame.K_DOWN:
-                self._tank.set_down()
-                KeyQueue.pursh_key(Key.DOWN)
-                
-            if event.key == pygame.K_LEFT:
-                self._tank.set_left()
-                KeyQueue.pursh_key(Key.LEFT)
+            if self._tank:
 
-            if event.key == pygame.K_RIGHT:
-                self._tank.set_right()
-                KeyQueue.pursh_key(Key.RIGHT)
+                if event.key == pygame.K_UP:
+                    self._tank.set_up()
+                    KeyQueue.pursh_key(Key.UP)
 
-            if event.key == pygame.K_SPACE:
-                self.fire_missile()
-                KeyQueue.pursh_key(Key.FIRE)
-            
+                if event.key == pygame.K_DOWN:
+                    self._tank.set_down()
+                    KeyQueue.pursh_key(Key.DOWN)
+
+                if event.key == pygame.K_LEFT:
+                    self._tank.set_left()
+                    KeyQueue.pursh_key(Key.LEFT)
+
+                if event.key == pygame.K_RIGHT:
+                    self._tank.set_right()
+                    KeyQueue.pursh_key(Key.RIGHT)
+
+                if event.key == pygame.K_SPACE:
+                    self.fire_missile()
+                    KeyQueue.pursh_key(Key.FIRE)
+
             #if (pygame.key.get_pressed()[K_UP] and pygame.key.get_pressed()[K_SPACE]):
             #    self.fire_missile()
             #    self._tank.set_up()
         
         elif event.type == pygame.KEYUP:
-            
-            if event.key == pygame.K_UP:
-                self._tank.set_is_move_allowed(False, enum.Sprite.UP)
-                KeyQueue.remove_key(Key.UP)
-                
-            if event.key == pygame.K_DOWN:
-                self._tank.set_is_move_allowed(False, enum.Sprite.DOWN)
-                KeyQueue.remove_key(Key.DOWN)
-                
-            if event.key == pygame.K_LEFT:
-                self._tank.set_is_move_allowed(False, enum.Sprite.LEFT)
-                KeyQueue.remove_key(Key.LEFT)
-                
-            if event.key == pygame.K_RIGHT:
-                self._tank.set_is_move_allowed(False, enum.Sprite.RIGHT)
-                KeyQueue.remove_key(Key.RIGHT)
-          
+            if self._tank:
+                if event.key == pygame.K_UP:
+                    self._tank.set_is_move_allowed(False, enum.Sprite.UP)
+                    KeyQueue.remove_key(Key.UP)
+
+                if event.key == pygame.K_DOWN:
+                    self._tank.set_is_move_allowed(False, enum.Sprite.DOWN)
+                    KeyQueue.remove_key(Key.DOWN)
+
+                if event.key == pygame.K_LEFT:
+                    self._tank.set_is_move_allowed(False, enum.Sprite.LEFT)
+                    KeyQueue.remove_key(Key.LEFT)
+
+                if event.key == pygame.K_RIGHT:
+                    self._tank.set_is_move_allowed(False, enum.Sprite.RIGHT)
+                    KeyQueue.remove_key(Key.RIGHT)
+
     def fire_missile(self):
         missile_position = self._tank.get_missile_position()
                 
@@ -110,7 +109,25 @@ class App:
         missile.set_is_move_allowed(True, self._tank.get_direction())
         self._tank.add_missile(missile)
 
+    def get_new_green_tank(self):
+        green_tank_image_X_Y={}
+        green_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":33}
+        green_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":66}
+        green_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":528, "y":99}
+        green_tank_image_X_Y[enum.Sprite.LEFT] = {"x":561, "y":132}
+
+        green_tank = Tank(Sprite.UP, self._image_surf, self._display_surf, self.weight, self.height, green_tank_image_X_Y, current_position_x=100, current_position_y=352)        
+
+        return green_tank
+
     def on_update(self):
+        if self._tank is None:
+            if self._delay_index == 50:
+                self._delay_index = 0
+                self._tank = self.get_new_green_tank()
+            else:
+                self._delay_index = self._delay_index +1
+
         tile_rects = self._tile_manager.get_all_rects()
         blue_tank_rects = []
 
@@ -122,24 +139,36 @@ class App:
                 if missile.is_touched_border():
                     blue_tank.get_missiles().remove(missile)
                 else:
-                    # Do missile collision detection
-                    collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
+                    if self._tank:
+                        # Do missile collision detection
+                        collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
 
-                    if len(collide_rect_indexs) > 0:
-                        index = collide_rect_indexs[0]
-                        fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._tank.get_current_position_x(), current_position_y=self._tank.get_current_position_y())
-                        self._fire_list.append(fire)                       
-                        #del self._blue_tanks[index]
-                        print "green tank hit"
-                        blue_tank.get_missiles().remove(missile)                        
+                        if len(collide_rect_indexs) > 0:
+                            blue_tank.get_missiles().remove(missile)
+
+                            index = collide_rect_indexs[0]
+                            fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._tank.get_current_position_x(), current_position_y=self._tank.get_current_position_y())
+                            self._fire_list.append(fire)                       
+
+                            self._total_number_of_tanks = self._total_number_of_tanks - 1
+
+                            self._tank = None
+
+                            if self._total_number_of_tanks == 0:
+                                self._running = False
+
+                        else:
+                            missile.move()
                     else:
                         missile.move()
 
         for index, blue_tank in enumerate(self._blue_tanks):
+
             other_blue_tank_rects = blue_tank_rects[:index] + blue_tank_rects[(index + 1):]
 
             other_blue_tank_rects.extend(tile_rects)
-            other_blue_tank_rects.append(self._tank.get_rect())
+            if self._tank:
+                other_blue_tank_rects.append(self._tank.get_rect())
 
             blue_tank.set_move_direction(blue_tank.get_random_direction())
 
@@ -148,44 +177,46 @@ class App:
             if allow_move:
                 blue_tank.move()
 
-        other_object_rects = []
+        if self._tank:
+            other_object_rects = []
 
-        other_object_rects.extend(blue_tank_rects)
-        other_object_rects.extend(tile_rects)
-        allow_move = self._tank.is_allow_move(other_object_rects)
+            other_object_rects.extend(blue_tank_rects)
+            other_object_rects.extend(tile_rects)
+            allow_move = self._tank.is_allow_move(other_object_rects)
 
-        if allow_move:
-            self._tank.move()
+            if allow_move:
+                self._tank.move()
 
-        for missile in self._tank.get_missiles():
-            if missile:
-                if missile.is_touched_border():
-                    self._tank.get_missiles().remove(missile)
-                else: 
-                    # Do missile collision detection
-                    collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), blue_tank_rects)
+            for missile in self._tank.get_missiles():
+                if missile:
+                    if missile.is_touched_border():
+                        self._tank.get_missiles().remove(missile)
+                    else: 
+                        # Do missile collision detection
+                        collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), blue_tank_rects)
 
-                    if len(collide_rect_indexs) > 0:
-                        index = collide_rect_indexs[0]
-                        fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._blue_tanks[index].get_current_position_x(), current_position_y=self._blue_tanks[index].get_current_position_y())
-                        self._fire_list.append(fire)                       
-                        del self._blue_tanks[index]
-                        self._tank.get_missiles().remove(missile)                        
-                    else:
-                        missile.move()
+                        if len(collide_rect_indexs) > 0:
+                            index = collide_rect_indexs[0]
+                            fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._blue_tanks[index].get_current_position_x(), current_position_y=self._blue_tanks[index].get_current_position_y())
+                            self._fire_list.append(fire)                       
+                            del self._blue_tanks[index]
+                            self._tank.get_missiles().remove(missile)                        
+                        else:
+                            missile.move()
 
     def on_render(self):
         self._display_surf.fill(self.background_color);
-        
-        #self._display_surf.blit(self._image_surf,(0,0), (561,132,32,32))
-        self._tank.render()
-
-        for missile in self._tank.get_missiles():
-            if missile:
-                missile.render()
 
         for blue_tank in self._blue_tanks:
             for missile in blue_tank.get_missiles():
+                if missile:
+                    missile.render()
+        
+        #self._display_surf.blit(self._image_surf,(0,0), (561,132,32,32))
+        if self._tank:
+            self._tank.render()
+
+            for missile in self._tank.get_missiles():
                 if missile:
                     missile.render()
 
