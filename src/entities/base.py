@@ -6,7 +6,6 @@ from system import utils
 from pygame import Rect
 
 class Base(object):
-    _id = None
     _image_x = 0
     _image_y = 0
     _image_size = 32

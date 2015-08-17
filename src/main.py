@@ -121,6 +121,7 @@ class App:
         return green_tank
 
     def on_update(self):
+
         if self._tank is None:
             if self._delay_index == 50:
                 self._delay_index = 0
@@ -129,6 +130,8 @@ class App:
                 self._delay_index = self._delay_index +1
 
         tile_rects = self._tile_manager.get_all_rects()
+        tiles = self._tile_manager.get_all_tiles()
+
         blue_tank_rects = []
 
         for blue_tank in self._blue_tanks:
@@ -139,6 +142,15 @@ class App:
                 if missile.is_touched_border():
                     blue_tank.get_missiles().remove(missile)
                 else:
+                    allow_missile_move = False
+                    # Check collision with tiles
+                    collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), tile_rects)
+                    
+                    result = self._tile_manager.check_tiles_by_hit_missile(collide_rect_indexs)
+
+                    if result:
+                        blue_tank.get_missiles().remove(missile)
+
                     if self._tank:
                         # Do missile collision detection
                         collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
@@ -158,8 +170,11 @@ class App:
                                 self._running = False
 
                         else:
-                            missile.move()
+                            allow_missile_move = True
                     else:
+                        allow_missile_move = True
+
+                    if allow_missile_move:
                         missile.move()
 
         for index, blue_tank in enumerate(self._blue_tanks):
@@ -191,7 +206,16 @@ class App:
                 if missile:
                     if missile.is_touched_border():
                         self._tank.get_missiles().remove(missile)
-                    else: 
+                    else:
+                        # Do missile detection with tiles
+                        collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), tile_rects)
+
+                        result = self._tile_manager.check_tiles_by_hit_missile(collide_rect_indexs)
+
+                        if result:
+                            # Remove missile
+                            self._tank.get_missiles().remove(missile)
+
                         # Do missile collision detection
                         collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), blue_tank_rects)
 

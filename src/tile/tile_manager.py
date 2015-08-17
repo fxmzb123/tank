@@ -40,6 +40,14 @@ class TileManager(object):
                 if col is not None:
                     col.render()
 
+    def get_all_tiles(self):
+        '''Get all tiles, exception none
+        '''
+        flattened = [val for sublist in self._tile_map for val in \
+                     sublist if val is not None ]
+
+        return flattened
+
     def get_all_rects(self):
         '''Get rects for all tiles
         '''
@@ -47,3 +55,24 @@ class TileManager(object):
                      sublist if val is not None ]
 
         return flattened
+
+    def check_tiles_by_hit_missile(self, collide_rect_indexs):
+        if len(collide_rect_indexs) > 0:
+            tiles = self.get_all_tiles()
+            for collide_rect_index in collide_rect_indexs:
+                tile = tiles[collide_rect_index]
+                if tile.is_dead():
+                    # Remove tile
+                    self.remove_tile_by_id(tiles[collide_rect_index].get_id())
+                else:
+                    tile.change_state()
+            return True
+        else:
+            return False
+
+    def remove_tile_by_id(self, tile_id):
+        for row in self._tile_map:
+            for col in row:
+                if col is not None:
+                    if col.get_id() == tile_id:
+                        row.remove(col)

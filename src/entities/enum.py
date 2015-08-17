@@ -16,6 +16,7 @@ class TileState:
     LIGHT_BREAK = 2
     MIDDLE_BREAK = 3
     FINAL_BREAK = 4
+    DEAD = 5
 
 class TileType:
     BRICK = 1
