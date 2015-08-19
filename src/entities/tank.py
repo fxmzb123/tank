@@ -26,6 +26,10 @@ class Tank(base.Base):
     def get_missiles(self):
         return self._missiles   
     
+    def remove_missiles(self, indexes):
+        for index in indexes:
+            del self._missiles[index]
+
     def get_missile_position(self):
         missile_position = {}
         
