@@ -152,30 +152,42 @@ class App:
                         blue_tank.get_missiles().remove(missile)
 
                     if self._tank:
-                        # Do missile collision detection
-                        collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
-
+                        # Check missile collision
+                        tank_missiles = self._tank.get_missiles()
+                        tank_missile_rects = [tank_missile.get_rect() for tank_missile in tank_missiles]
+                        collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), tank_missile_rects)
+                        
                         if len(collide_rect_indexs) > 0:
+                            self._tank.remove_missiles(collide_rect_indexs)
                             blue_tank.get_missiles().remove(missile)
+                            missile = None
 
-                            index = collide_rect_indexs[0]
-                            fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._tank.get_current_position_x(), current_position_y=self._tank.get_current_position_y())
-                            self._fire_list.append(fire)                       
-
-                            self._total_number_of_tanks = self._total_number_of_tanks - 1
-
-                            self._tank = None
-
-                            if self._total_number_of_tanks == 0:
-                                self._running = False
-
-                        else:
-                            allow_missile_move = True
+                        if missile:
+                            # Do missile collision detection
+                            collide_rect_indexs = utils.Utils.get_collide_indexes(missile.get_rect(), [self._tank.get_rect()])
+    
+                            if len(collide_rect_indexs) > 0:
+                                blue_tank.get_missiles().remove(missile)
+    
+                                index = collide_rect_indexs[0]
+                                fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._tank.get_current_position_x(), current_position_y=self._tank.get_current_position_y())
+                                self._fire_list.append(fire)                       
+    
+                                self._total_number_of_tanks = self._total_number_of_tanks - 1
+    
+                                self._tank = None
+    
+                                if self._total_number_of_tanks == 0:
+                                    self._running = False
+    
+                            else:
+                                allow_missile_move = True                    
                     else:
                         allow_missile_move = True
 
                     if allow_missile_move:
-                        missile.move()
+                        if missile:
+                            missile.move()
 
         for index, blue_tank in enumerate(self._blue_tanks):
 
