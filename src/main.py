@@ -11,24 +11,27 @@ from entities.fire import *
 from system.keyqueue import *
 from tile.tile_manager import TileManager
 from system import utils
+from entities.board import GreenTankBoard
+from entities.board import BlueTankBoard
 
 class App:
     def __init__(self):
         self._running = True
         self._display_surf = None
-        self.size = self.weight, self.height = 320, 384
+        self.weight, self.height = 320, 384
+        self.size = (self.weight + 36, self.height)
         self.background_color = (0,0,0)
         self._image_surf = None
         self._image_name = "tankbrigade.bmp"
         self._collision_direction = []
-        
+
     def on_init(self):
-        
+
         pygame.init()
+
         self._display_surf = pygame.display.set_mode(self.size)
         pygame.display.set_caption('Tank Brigade')
-        self._display_surf.fill(self.background_color);
-
+        self._display_surf.fill(self.background_color)
         self._image_surf = pygame.image.load( os.path.join(os.path.dirname(__file__), "images", self._image_name) ).convert()
   
         blue_tank_image_X_Y={}
@@ -53,6 +56,9 @@ class App:
         self._tile_manager = TileManager(self._image_surf, self._display_surf, self.weight, self.height)
 
         self._fire_list = []
+
+        self._green_tank_board = GreenTankBoard(None, self._image_surf, self._display_surf, self.size[0], self.size[1], current_position_x = 324, current_position_y = 100)
+        self._blue_tank_board = BlueTankBoard(None, self._image_surf, self._display_surf, self.size[0], self.size[1], current_position_x = 324, current_position_y = 150)
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -174,7 +180,7 @@ class App:
                                 self._fire_list.append(fire)                       
     
                                 self._total_number_of_tanks = self._total_number_of_tanks - 1
-    
+                                self._green_tank_board.set_number(self._total_number_of_tanks)
                                 self._tank = None
     
                                 if self._total_number_of_tanks == 0:
@@ -247,7 +253,7 @@ class App:
             for missile in blue_tank.get_missiles():
                 if missile:
                     missile.render()
-        
+
         #self._display_surf.blit(self._image_surf,(0,0), (561,132,32,32))
         if self._tank:
             self._tank.render()
@@ -263,17 +269,21 @@ class App:
         
         for fire in self._fire_list:
             fire.render()
-            
+
+        pygame.draw.line(self._display_surf, pygame.Color(125, 125, 125), (322, 0), (322, 384), 3)
+        self._green_tank_board.render()
+        self._blue_tank_board.render()
+
         pygame.display.flip()
     
     def on_cleanup(self):
         pygame.display.quit()
         pygame.quit()
-    
+
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
-        
+
         while(self._running):
             for event in pygame.event.get():
                 self.on_event(event)
