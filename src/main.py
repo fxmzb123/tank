@@ -1,6 +1,8 @@
 import os
 import sys
 
+from sets import Set
+
 import pygame
 from pygame.locals import *
 
@@ -33,23 +35,26 @@ class App:
         pygame.display.set_caption('Tank Brigade')
         self._display_surf.fill(self.background_color)
         self._image_surf = pygame.image.load( os.path.join(os.path.dirname(__file__), "images", self._image_name) ).convert()
-  
-        blue_tank_image_X_Y={}
-        blue_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":330}
-        blue_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":363}
-        blue_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":726, "y":132}
-        blue_tank_image_X_Y[enum.Sprite.LEFT] = {"x":693, "y":132}
-
+        
+        # This is for green tank
         self._total_number_of_tanks = 3
+        # This is for blue tanks
+        self._batch_number = 3
+        self._total_blue_tanks = 20
+        
         self._delay_index = 0
+        self._delay_index_blue_tank = 0
 
         self._tank = self.get_new_green_tank()
 
         self._blue_tanks = []
+        self._green_tank_batch_set = Set()
 
-        for i in range(3):
-            blue_tank = Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(i*144), current_position_y=0)
-            self._blue_tanks.append(blue_tank)
+        for i in range(self._batch_number):
+            self._blue_tanks.append(self.get_new_blue_tank(i))
+            self._green_tank_batch_set.add(i)
+
+        self._total_blue_tanks = self._total_blue_tanks - self._batch_number
 
         self._running = True
 
@@ -115,6 +120,18 @@ class App:
         missile.set_is_move_allowed(True, self._tank.get_direction())
         self._tank.add_missile(missile)
 
+    def get_new_blue_tank(self, index):
+        blue_tank_image_X_Y={}
+        blue_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":330}
+        blue_tank_image_X_Y[enum.Sprite.DOWN] = {"x":528, "y":363}
+        blue_tank_image_X_Y[enum.Sprite.RIGHT] = {"x":726, "y":132}
+        blue_tank_image_X_Y[enum.Sprite.LEFT] = {"x":693, "y":132}
+        
+        blue_tank = Tank(Sprite.DOWN, self._image_surf, self._display_surf, self.weight, self.height, blue_tank_image_X_Y, current_position_x=(index*144), current_position_y=0)
+        blue_tank.set_batch_index(index)
+        
+        return blue_tank
+            
     def get_new_green_tank(self):
         green_tank_image_X_Y={}
         green_tank_image_X_Y[enum.Sprite.UP] = {"x":528, "y":33}
@@ -240,11 +257,37 @@ class App:
                         if len(collide_rect_indexs) > 0:
                             index = collide_rect_indexs[0]
                             fire = Fire(FireState.FIRST, self._image_surf, self._display_surf, self.weight, self.height, current_position_x=self._blue_tanks[index].get_current_position_x(), current_position_y=self._blue_tanks[index].get_current_position_y())
-                            self._fire_list.append(fire)                       
+
+                            self._fire_list.append(fire)               
                             del self._blue_tanks[index]
                             self._tank.get_missiles().remove(missile)                        
                         else:
                             missile.move()
+
+        # We check if number of blue tanks is less than the batch number
+        if len(self._blue_tanks) < self._batch_number:
+            if self._total_blue_tanks > 0:
+                if self._delay_index_blue_tank == 50:
+                    self._delay_index_blue_tank = 0
+
+                    missing_index = self.get_missing_index()
+
+                    for index in missing_index:
+                        self._blue_tanks.append(self.get_new_blue_tank(index))
+                        self._total_blue_tanks = self._total_blue_tanks -1
+
+                        if self._total_blue_tanks == 0:
+                            break
+                else:
+                    self._delay_index_blue_tank = self._delay_index_blue_tank +1
+
+    def get_missing_index(self):
+        blue_tank_index_set = Set()
+
+        for tank in self._blue_tanks:
+            blue_tank_index_set.add(tank.get_batch_index())
+
+        return list(self._green_tank_batch_set - blue_tank_index_set)
 
     def on_render(self):
         self._display_surf.fill(self.background_color);

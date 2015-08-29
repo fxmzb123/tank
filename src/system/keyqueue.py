@@ -37,7 +37,8 @@ class KeyQueue(object):
     def remove_key(cls, key):
         '''Remove one specific key in the queue.
         '''
-        del cls._keys[cls._keys.index(key)]
+        if key in cls._keys:
+            del cls._keys[cls._keys.index(key)]
 
     @classmethod
     def get_keys(cls):
