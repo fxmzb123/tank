@@ -40,6 +40,14 @@ class BlueTankBoard(Board):
         self.set_image_y(33)
 
         super(BlueTankBoard, self).__init__(direction, image_surf, display_surf, screen_width, screen_height, None, current_position_x=current_position_x, current_position_y=current_position_y)
+        self.set_number(20)
 
     def render(self):
         super(BlueTankBoard, self).render()
+
+        font = pygame.font.Font(None, 16)
+        text = font.render(str(self.get_number()), 1, (255, 255, 255))
+        if self.get_number() > 9:
+            self._display_surf.blit(text, (335, 180))
+        else:
+            self._display_surf.blit(text, (337, 180))

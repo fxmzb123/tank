@@ -281,6 +281,8 @@ class App:
                 else:
                     self._delay_index_blue_tank = self._delay_index_blue_tank +1
 
+        self._blue_tank_board.set_number(self._total_blue_tanks)
+        
     def get_missing_index(self):
         blue_tank_index_set = Set()
 
@@ -314,6 +316,7 @@ class App:
             fire.render()
 
         pygame.draw.line(self._display_surf, pygame.Color(125, 125, 125), (322, 0), (322, 384), 3)
+
         self._green_tank_board.render()
         self._blue_tank_board.render()
 
