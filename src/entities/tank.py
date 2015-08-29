@@ -6,6 +6,11 @@ from entities import enum
 
 class Tank(base.Base):
     
+    def set_batch_index(self, index):
+        self._batch_index = index
+
+    def get_batch_index(self):
+        return self._batch_index
 
     def fire_missile_randomly(self):
         random_integer = randint(0, 50)
