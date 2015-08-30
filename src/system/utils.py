@@ -1,5 +1,7 @@
 import uuid
 
+import pygame
+
 from operator import itemgetter
 
 class Utils(object):
@@ -32,3 +34,11 @@ class Utils(object):
             return collision_rects
         else:
             return []
+
+    @classmethod
+    def draw_text_on_screen(cls, display_surf, text, size, color, position):
+        font = pygame.font.Font(None, size)
+        text_to_display = font.render(text, 1, color)
+
+        display_surf.blit(text_to_display, position)
+        pygame.display.flip()
