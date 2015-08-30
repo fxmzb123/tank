@@ -65,6 +65,11 @@ class App:
         self._green_tank_board = GreenTankBoard(None, self._image_surf, self._display_surf, self.size[0], self.size[1], current_position_x = 324, current_position_y = 100)
         self._blue_tank_board = BlueTankBoard(None, self._image_surf, self._display_surf, self.size[0], self.size[1], current_position_x = 324, current_position_y = 150)
 
+        self._show_welcome = True
+        
+        utils.Utils.draw_text_on_screen(self._display_surf, "Tank Brigade", 36, (255,255,255), (100,100))
+        utils.Utils.draw_text_on_screen(self._display_surf, "Press space to start", 26, (255,255,255), (100,160))
+
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
@@ -88,6 +93,9 @@ class App:
                     KeyQueue.pursh_key(Key.RIGHT)
 
                 if event.key == pygame.K_SPACE:
+                    if self._show_welcome:
+                        self._show_welcome = False
+
                     self.fire_missile()
                     KeyQueue.pursh_key(Key.FIRE)
 
@@ -333,10 +341,11 @@ class App:
         while(self._running):
             for event in pygame.event.get():
                 self.on_event(event)
-            
-            self.on_update()
-            self.on_render()
-            
+
+            if not self._show_welcome:
+                self.on_update()
+                self.on_render()
+
             pygame.time.Clock().tick(30)
 
         self.on_cleanup()
